@@ -1078,9 +1078,19 @@ function autoFitSlip(){
 function downloadPDF(){
   const{student:s,classPos:curClassPos,classTotal:curClassTotal,subjects}=appState;
   if(!s)return;
+  buildPDF(s,curClassPos,curClassTotal,subjects,1.0);
+}
+
+function buildPDF(s,curClassPos,curClassTotal,subjects,scaleFactor){
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const avg=subjects.length?(s.grand_total/subjects.length).toFixed(1):'0.0';
+  const subjectCount=subjects.length;
+  // Scale font sizes down if many subjects OR by scaleFactor
+  const tblFont=Math.max(5,Math.round((subjectCount>10?7:8)*scaleFactor));
+  const tblRowH=Math.max(3.5,Math.round((subjectCount>10?5:6)*scaleFactor));
+
+  // ── HEADER ──
   doc.setFillColor(27,67,50);doc.rect(0,0,210,32,'F');
   const logoImg=document.getElementById('slip-logo');
   if(logoImg&&logoImg.complete&&logoImg.naturalWidth>0){
@@ -1093,69 +1103,129 @@ function downloadPDF(){
   doc.setFillColor(201,168,76);doc.rect(0,32,210,9,'F');
   doc.setTextColor(26,26,46);doc.setFont('helvetica','bold');doc.setFontSize(9);
   doc.text(`${(s.term||'').toUpperCase()} RESULT — ${s.session}`,105,38,{align:'center'});
-  let y=48;doc.setTextColor(26,26,46);doc.setFontSize(8);
+
+  // ── BIO DATA ──
+  const bioRowH=5.5*scaleFactor;
+  let y=47;doc.setTextColor(26,26,46);doc.setFontSize(8*scaleFactor);
   const iL=[['Student Name',s.name.toUpperCase()],['Student ID',s.student_id],['Class',s.class_name],['Term',s.term]];
   const iR=[['Gender',(s.gender||'—').toUpperCase()],['Age',s.age||'—'],['Session',s.session],['No. in Class',curClassTotal+' Students']];
-  iL.forEach(([k,v],i)=>{doc.setFont('helvetica','bold');doc.text(k+':',14,y+i*6);doc.setFont('helvetica','normal');doc.text(String(v||''),52,y+i*6);});
-  iR.forEach(([k,v],i)=>{doc.setFont('helvetica','bold');doc.text(k+':',110,y+i*6);doc.setFont('helvetica','normal');doc.text(String(v||''),147,y+i*6);});
-  y+=30;
+  iL.forEach(([k,v],i)=>{doc.setFont('helvetica','bold');doc.text(k+':',14,y+i*bioRowH);doc.setFont('helvetica','normal');doc.text(String(v||''),52,y+i*bioRowH);});
+  iR.forEach(([k,v],i)=>{doc.setFont('helvetica','bold');doc.text(k+':',110,y+i*bioRowH);doc.setFont('helvetica','normal');doc.text(String(v||''),147,y+i*bioRowH);});
+  y+=22*scaleFactor+4;
+
+  // ── SUBJECTS TABLE ──
   doc.autoTable({
-    startY:y,head:[['Subject','CA1','CA2','CA3','Exam','Total','Grade','Remark','Position']],
+    startY:y,
+    head:[['Subject','CA1','CA2','CA3','Exam','Total','Grade','Remark','Position']],
     body:subjects.map(sub=>[sub.subject,sub.ca1,sub.ca2,sub.ca3,sub.exam,sub.total,sub.grade,getGradeRemark(sub.grade),getOrdinal(sub.position||1)]),
-    headStyles:{fillColor:[27,67,50],fontSize:8,halign:'center'},
-    bodyStyles:{fontSize:8,halign:'center'},
+    headStyles:{fillColor:[27,67,50],fontSize:tblFont,halign:'center'},
+    bodyStyles:{fontSize:tblFont,halign:'center',minCellHeight:tblRowH,cellPadding:1.5*scaleFactor},
     columnStyles:{0:{halign:'left',fontStyle:'bold'},7:{halign:'left'}},
     alternateRowStyles:{fillColor:[240,247,244]},
     margin:{left:14,right:14}
   });
-  y=doc.lastAutoTable.finalY+8;
+  y=doc.lastAutoTable.finalY+4*scaleFactor;
+
+  // ── SUMMARY STATS ──
   const stats=[['Grand Total',s.grand_total],['Average',avg+'%'],['Class Position',getOrdinal(curClassPos)],['Class Size',curClassTotal]];
   const cW=45.5;
+  const sumH=14*scaleFactor;
   stats.forEach(([lbl,val],i)=>{
     const x=14+i*cW;
-    doc.setFillColor(240,247,244);doc.roundedRect(x,y,cW-2,16,2,2,'F');
-    doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(27,67,50);
-    doc.text(String(val),x+(cW-2)/2,y+8,{align:'center'});
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(100,100,100);
-    doc.text(lbl,x+(cW-2)/2,y+13,{align:'center'});
+    doc.setFillColor(240,247,244);doc.roundedRect(x,y,cW-2,sumH,2,2,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(11*scaleFactor);doc.setTextColor(27,67,50);
+    doc.text(String(val),x+(cW-2)/2,y+sumH*0.5,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(6.5*scaleFactor);doc.setTextColor(100,100,100);
+    doc.text(lbl,x+(cW-2)/2,y+sumH*0.85,{align:'center'});
   });
-  y+=22;
+  y+=sumH+5*scaleFactor;
+
+  // ── PSYCHOMOTOR TRAITS (left col) + GRADING KEY (right col) ──
   const traits=[['Neatness',s.neatness],['Obedience',s.obedience],['Punctuality',s.punctuality],['Attentiveness',s.attentiveness],['Initiative',s.initiative],['Self Control',s.self_control]];
-  doc.setFillColor(27,67,50);doc.rect(14,y,85,6,'F');
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
-  doc.text('PSYCHOMOTOR TRAITS',56.5,y+4,{align:'center'});
+  const colW=88; // each column width
+  const colGap=6;
+  const leftX=14;
+  const rightX=leftX+colW+colGap;
+  const rowH=5.5*scaleFactor;
+  const traitsBodyH=traits.length*rowH;
+  const gkRows=[['A','75 & Above','Distinction'],['B','65–74','Very Good'],['C','55–64','Good'],['D','40–54','Fair'],['E','0–39','Poor']];
+  const gkRowH=traitsBodyH/gkRows.length; // make grading key rows fill same height as traits
+
+  // Left: Psychomotor header
+  doc.setFillColor(27,67,50);doc.rect(leftX,y,colW,6*scaleFactor,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(7.5*scaleFactor);
+  doc.text('PSYCHOMOTOR & BEHAVIOURAL TRAITS',leftX+colW/2,y+4*scaleFactor,{align:'center'});
   traits.forEach(([k,v],i)=>{
-    const ty=y+6+i*6;
-    if(i%2===0){doc.setFillColor(249,250,251);doc.rect(14,ty,85,6,'F');}
-    doc.setTextColor(26,26,46);doc.setFont('helvetica','normal');doc.setFontSize(8);
-    doc.text(k,16,ty+4);doc.setFont('helvetica','bold');doc.text(mapTraitGrade(v),97,ty+4,{align:'right'});
+    const ty=y+6*scaleFactor+i*rowH;
+    if(i%2===0){doc.setFillColor(249,250,251);doc.rect(leftX,ty,colW,rowH,'F');}
+    doc.setTextColor(26,26,46);doc.setFont('helvetica','normal');doc.setFontSize(7.5*scaleFactor);
+    doc.text(k,leftX+2,ty+3.8*scaleFactor);doc.setFont('helvetica','bold');doc.text(mapTraitGrade(v),leftX+colW-2,ty+3.8*scaleFactor,{align:'right'});
   });
-  y+=6+traits.length*6+6;
-  doc.setFillColor(255,251,235);doc.roundedRect(14,y,182,16,2,2,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(146,64,14);doc.text("TEACHER'S REMARK",16,y+5);
-  doc.setFont('helvetica','normal');doc.setTextColor(26,26,46);doc.setFontSize(8);
+
+  // Right: Grading Key header
+  doc.setFillColor(27,67,50);doc.rect(rightX,y,colW,6*scaleFactor,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(7.5*scaleFactor);
+  doc.text('GRADING KEY',rightX+colW/2,y+4*scaleFactor,{align:'center'});
+  gkRows.forEach(([grade,range,remark],i)=>{
+    const gy=y+6*scaleFactor+i*gkRowH;
+    doc.setFillColor(i%2===0?240:248,i%2===0?247:250,i%2===0?244:246);
+    doc.rect(rightX,gy,colW,gkRowH,'F');
+    doc.setDrawColor(210,225,215);doc.rect(rightX,gy,colW,gkRowH,'S');
+    doc.setFont('helvetica','bold');doc.setFontSize(8*scaleFactor);doc.setTextColor(27,67,50);
+    doc.text(grade,rightX+10,gy+gkRowH/2+1.5*scaleFactor,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(7*scaleFactor);doc.setTextColor(50,50,50);
+    doc.text(range,rightX+colW/2,gy+gkRowH/2+1.5*scaleFactor,{align:'center'});
+    doc.setFont('helvetica','italic');doc.setFontSize(6.5*scaleFactor);doc.setTextColor(80,80,80);
+    doc.text(remark,rightX+colW-4,gy+gkRowH/2+1.5*scaleFactor,{align:'right'});
+  });
+
+  y+=6*scaleFactor+traitsBodyH+4*scaleFactor;
+
+  // ── TEACHER REMARK ──
   const remarkLines=doc.splitTextToSize(s.teacher_remark||getAutoRemark(parseFloat(avg)),178);
-  doc.text(remarkLines,16,y+11);
-  y+=10+remarkLines.length*5+6;
+  const remarkH=(7+remarkLines.length*4.5)*scaleFactor;
+  doc.setFillColor(255,251,235);doc.roundedRect(14,y,182,remarkH,2,2,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(7*scaleFactor);doc.setTextColor(146,64,14);doc.text("TEACHER'S REMARK",16,y+4.5*scaleFactor);
+  doc.setFont('helvetica','normal');doc.setTextColor(26,26,46);doc.setFontSize(7.5*scaleFactor);
+  doc.text(remarkLines,16,y+9*scaleFactor);
+  y+=remarkH+4*scaleFactor;
+
+  // ── NEXT TERM DATES ──
   if(s.next_term_begins||s.next_term_ends){
+    const dtH=11*scaleFactor;
     doc.setFillColor(240,247,244);
-    doc.roundedRect(14,y,88,12,2,2,'F');doc.roundedRect(108,y,88,12,2,2,'F');
-    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(27,67,50);
-    doc.text('NEXT TERM BEGINS',58,y+5,{align:'center'});doc.text('NEXT TERM ENDS',152,y+5,{align:'center'});
-    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(26,26,46);
-    doc.text(fmt(s.next_term_begins),58,y+10,{align:'center'});doc.text(fmt(s.next_term_ends),152,y+10,{align:'center'});
-    y+=18;
+    doc.roundedRect(14,y,88,dtH,2,2,'F');doc.roundedRect(108,y,88,dtH,2,2,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(7*scaleFactor);doc.setTextColor(27,67,50);
+    doc.text('NEXT TERM BEGINS',58,y+4.5*scaleFactor,{align:'center'});doc.text('NEXT TERM ENDS',152,y+4.5*scaleFactor,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(8*scaleFactor);doc.setTextColor(26,26,46);
+    doc.text(fmt(s.next_term_begins),58,y+9*scaleFactor,{align:'center'});doc.text(fmt(s.next_term_ends),152,y+9*scaleFactor,{align:'center'});
+    y+=dtH+4*scaleFactor;
   }
-  doc.setDrawColor(150,150,150);
-  // GRADING KEY BOX   doc.setFillColor(27,67,50);doc.roundedRect(14,y,182,7,2,2,'F');   doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(255,255,255);   doc.text('GRADING KEY',105,y+4.5,{align:'center'});   y+=9;   const grades=[['A','75 & Above','Distinction'],['B','65 – 74','Very Good'],['C','55 – 64','Good'],['D','40 – 54','Fair'],['E','0 – 39','Poor']];   const colW=182/5;   grades.forEach(([g,range,remark],i)=>{     const x=14+(i*colW);     doc.setFillColor(i%2===0?240:247,i%2===0?247:250,i%2===0?244:246);     doc.rect(x,y,colW,10,'F');     doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(27,67,50);     doc.text(g,x+colW/2,y+4.5,{align:'center'});     doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(60,60,60);     doc.text(range,x+colW/2,y+7.5,{align:'center'});     doc.setFontSize(6);doc.setTextColor(100,100,100);     doc.text(remark,x+colW/2,y+10,{align:'center'});   });   y+=14;   doc.setDrawColor(150,150,150);   doc.line(14,y+16,65,y+16);doc.line(80,y+16,131,y+16);doc.line(145,y+16,196,y+16);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(80,80,80);
-  doc.text('Class Teacher',39.5,y+20,{align:'center'});
-  doc.text(s.principal_name||'Principal',105.5,y+20,{align:'center'});
-  doc.text('Date',170.5,y+20,{align:'center'});
-  // Footer — school name only, no contact us
-  doc.setFillColor(245,245,245);doc.rect(0,282,210,15,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(27,67,50);
-  doc.text('Christ The King Academy Ugbokpo',105,291,{align:'center'});
+
+  // ── SIGNATURES ──
+  const sigGap=14*scaleFactor;
+  doc.setDrawColor(130,130,130);
+  doc.line(14,y+sigGap,65,y+sigGap);doc.line(80,y+sigGap,131,y+sigGap);doc.line(145,y+sigGap,196,y+sigGap);
+  doc.setFont('helvetica','normal');doc.setFontSize(8*scaleFactor);doc.setTextColor(80,80,80);
+  doc.text('Class Teacher',39.5,y+sigGap+4*scaleFactor,{align:'center'});
+  doc.text(s.principal_name||'Principal',105.5,y+sigGap+4*scaleFactor,{align:'center'});
+  doc.text('Date',170.5,y+sigGap+4*scaleFactor,{align:'center'});
+
+  // ── FOOTER & AUTO-FIT CHECK ──
+  const sigBottom=y+22;
+  const A4_USABLE=279; // 297mm - 18mm margins/footer room
+  // If content overflows a single A4 page and we haven't scaled too small yet, retry
+  if(sigBottom>A4_USABLE&&scaleFactor>0.6&&doc.internal.getNumberOfPages()===1){
+    buildPDF(s,curClassPos,curClassTotal,subjects,scaleFactor*0.92);
+    return;
+  }
+  const totalPages=doc.internal.getNumberOfPages();
+  for(let p=1;p<=totalPages;p++){
+    doc.setPage(p);
+    doc.setFillColor(245,245,245);doc.rect(0,282,210,15,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(27,67,50);
+    doc.text('Christ The King Academy Ugbokpo',105,291,{align:'center'});
+  }
   doc.save(`Result_${s.name.replace(/\s+/g,'_')}_${s.term}_${s.session}.pdf`);
 }
 
@@ -1457,8 +1527,28 @@ function downloadAnnualPDF(){
   doc.setFont('helvetica','bold');doc.setFontSize(10);
   doc.text((isPass?'✓ PROMOTED — ':'✗ NOT PROMOTED — ')+(d.promotion_status||d.status).toUpperCase(),105,y+8,{align:'center'});
   y+=22;
+  // GRADING KEY
+  doc.setFillColor(27,67,50);doc.roundedRect(14,y,182,7,2,2,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(255,255,255);
+  doc.text('GRADING KEY',105,y+4.5,{align:'center'});
+  y+=8;
+  const gkData2=[['A','75 & Above','Distinction'],['B','65 - 74','Very Good'],['C','55 - 64','Good'],['D','40 - 54','Fair'],['E','0 - 39','Poor']];
+  const gkW2=182/5;
+  const gkH2=16;
+  gkData2.forEach(([grade,range,remark],i)=>{
+    const gx=14+(i*gkW2);
+    doc.setFillColor(i%2===0?240:248,i%2===0?247:249,i%2===0?244:245);
+    doc.rect(gx,y,gkW2,gkH2,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(27,67,50);
+    doc.text(grade,gx+gkW2/2,y+5.5,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(50,50,50);
+    doc.text(range,gx+gkW2/2,y+10,{align:'center'});
+    doc.setFont('helvetica','italic');doc.setFontSize(6);doc.setTextColor(80,80,80);
+    doc.text(remark,gx+gkW2/2,y+14,{align:'center'});
+  });
+  y+=gkH2+6;
   doc.setDrawColor(150,150,150);doc.setTextColor(80,80,80);doc.setFont('helvetica','normal');doc.setFontSize(8);
-  // GRADING KEY BOX   doc.setFillColor(27,67,50);doc.roundedRect(14,y,182,7,2,2,'F');   doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(255,255,255);   doc.text('GRADING KEY',105,y+4.5,{align:'center'});   y+=9;   const grades=[['A','75 & Above','Distinction'],['B','65 – 74','Very Good'],['C','55 – 64','Good'],['D','40 – 54','Fair'],['E','0 – 39','Poor']];   const colW=182/5;   grades.forEach(([g,range,remark],i)=>{     const x=14+(i*colW);     doc.setFillColor(i%2===0?240:247,i%2===0?247:250,i%2===0?244:246);     doc.rect(x,y,colW,10,'F');     doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(27,67,50);     doc.text(g,x+colW/2,y+4.5,{align:'center'});     doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(60,60,60);     doc.text(range,x+colW/2,y+7.5,{align:'center'});     doc.setFontSize(6);doc.setTextColor(100,100,100);     doc.text(remark,x+colW/2,y+10,{align:'center'});   });   y+=14;   doc.setDrawColor(150,150,150);   doc.line(14,y+16,65,y+16);doc.line(80,y+16,131,y+16);doc.line(145,y+16,196,y+16);
+  doc.line(14,y+16,65,y+16);doc.line(80,y+16,131,y+16);doc.line(145,y+16,196,y+16);
   doc.text('Class Teacher',39.5,y+20,{align:'center'});
   doc.text('Principal',105.5,y+20,{align:'center'});
   doc.text('Date',170.5,y+20,{align:'center'});
