@@ -11,22 +11,22 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary: #1b4332; --primary-light: #2d6a4f; --gold: #c9a84c; --gold-light: #f0d080;
-      --bg: #f4f6f0; --card: #ffffff; --text: #1a1a2e; --muted: #6b7280;
-      --border: #d1d5db; --danger: #dc2626; --success: #16a34a;
-      --radius: 14px; --shadow: 0 4px 24px rgba(27,67,50,0.10);
+      --primary: #0a1f44; --primary-light: #1a3a6b; --gold: #ffffff; --gold-light: #e8edf5;
+      --bg: #f0f2f8; --card: #ffffff; --text: #0a1f44; --muted: #5a6a85;
+      --border: #c5cde0; --danger: #dc2626; --success: #16a34a;
+      --radius: 14px; --shadow: 0 4px 24px rgba(10,31,68,0.12);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    .topbar { background: var(--primary); color: white; padding: 0 32px; height: 62px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.18); }
-    .topbar-brand { font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
-    .topbar-brand span { color: var(--gold); }
+    .topbar { background: var(--primary); color: white; padding: 0 32px; height: 70px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.28); border-bottom: 3px solid rgba(255,255,255,0.25); }
+    .topbar-brand { font-family: 'Playfair Display', serif; font-size: 26px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
+    .topbar-brand span { color: #c8d8f0; }
     .topbar-right { display: flex; gap: 10px; align-items: center; }
     .nav-btn { background: transparent; border: 1.5px solid rgba(255,255,255,0.3); color: white; padding: 7px 18px; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; transition: all 0.2s; }
     .nav-btn:hover { background: rgba(255,255,255,0.12); border-color: white; }
-    .nav-btn.gold { background: var(--gold); border-color: var(--gold); color: #1a1a2e; font-weight: 600; }
-    .nav-btn.gold:hover { background: var(--gold-light); }
+    .nav-btn.gold { background: white; border-color: white; color: var(--primary); font-weight: 600; }
+    .nav-btn.gold:hover { background: #e8edf5; }
     .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; background: transparent; border: none; }
     .hamburger span { display: block; width: 22px; height: 2px; background: white; border-radius: 2px; }
     .mobile-menu { display: none; flex-direction: column; gap: 8px; background: var(--primary); padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); }
@@ -36,7 +36,7 @@
     .page { display: none; min-height: calc(100vh - 62px); }
     .page.active { display: block; }
 
-    .hero { background: linear-gradient(135deg, var(--primary) 0%, #2d6a4f 60%, #40916c 100%); padding: 70px 20px 60px; text-align: center; color: white; }
+    .hero { background: linear-gradient(135deg, #0a1f44 0%, #1a3a6b 60%, #2952a3 100%); padding: 70px 20px 60px; text-align: center; color: white; }
     .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(26px, 5vw, 42px); margin-bottom: 10px; line-height: 1.2; }
     .hero p { font-size: 15px; opacity: 0.82; margin-bottom: 36px; }
     .search-card { background: white; max-width: 480px; margin: 0 auto; border-radius: var(--radius); padding: 32px; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
@@ -51,8 +51,8 @@
     .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 24px; border-radius: 9px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; transition: all 0.2s; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); }
-    .btn-gold { background: var(--gold); color: #1a1a2e; }
-    .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-gold { background: white; color: var(--primary); border: 1.5px solid white; }
+    .btn-gold:hover { background: #e8edf5; transform: translateY(-1px); }
     .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
     .btn-outline:hover { background: var(--primary); color: white; }
     .btn-danger { background: var(--danger); color: white; }
@@ -92,7 +92,7 @@
     /* ═══════════════════════════════════════
        RESULT SLIP — AUTO-FIT TO A4
     ═══════════════════════════════════════ */
-    #result-slip-page { background: #e8ede9; }
+    #result-slip-page { background: #dde3f0; }
     .slip-outer { max-width: 800px; margin: 0 auto; padding: 32px 20px; }
     .slip { background: white; border-radius: 4px; box-shadow: 0 8px 40px rgba(0,0,0,0.15); overflow: hidden; width: 210mm; max-width: 100%; transform-origin: top left; }
     .slip-header { background: var(--primary); color: white; padding: 12px 24px; display: flex; align-items: center; gap: 14px; }
@@ -102,9 +102,9 @@
     .slip-header-logo-placeholder { width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
 
     .slip-header-text { flex: 1; text-align: center; }
-    .slip-school { font-family: 'Playfair Display', serif; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
-    .slip-subtitle { font-size: 11px; opacity: 0.8; margin-top: 2px; letter-spacing: 2px; text-transform: uppercase; }
-    .slip-title { background: var(--gold); color: #1a1a2e; text-align: center; padding: 7px; font-weight: 700; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+    .slip-school { font-family: 'Playfair Display', serif; font-size: 26px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+    .slip-subtitle { font-size: 11px; opacity: 0.85; margin-top: 4px; letter-spacing: 2px; text-transform: uppercase; color: #c8d8f0; }
+    .slip-title { background: white; color: var(--primary); text-align: center; padding: 7px; font-weight: 700; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; border-bottom: 3px solid var(--primary); }
     .slip-body { padding: 12px 20px; }
     .slip-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; margin-bottom: 10px; font-size: 11px; }
     .slip-info-item { display: flex; gap: 4px; border-bottom: 1px dashed #ddd; padding: 3px 0; }
@@ -120,21 +120,20 @@
     .slip-trait-row { display: flex; justify-content: space-between; padding: 3px 10px; border-bottom: 1px solid #eee; font-size: 10.5px; }
     .slip-trait-row:last-child { border-bottom: none; }
     .slip-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
-    .slip-stat { background: #f0f7f4; border: 1px solid #c3e0d0; border-radius: 6px; padding: 6px; text-align: center; }
+    .slip-stat { background: #edf0f8; border: 1px solid #c5cde0; border-radius: 6px; padding: 6px; text-align: center; }
     .slip-stat .val { font-size: 16px; font-weight: 700; color: var(--primary); font-family: 'Playfair Display', serif; }
     .slip-stat .lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 1px; }
     .slip-remark { background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 6px 12px; font-size: 10.5px; margin-bottom: 8px; }
     .slip-remark strong { color: #92400e; display: block; margin-bottom: 2px; font-size: 10px; text-transform: uppercase; }
     .slip-next-term { display: flex; gap: 12px; font-size: 10.5px; margin-bottom: 8px; }
-    .slip-next-term div { background: #f0f7f4; border-radius: 6px; padding: 5px 10px; flex: 1; text-align: center; }
+    .slip-next-term div { background: #edf0f8; border-radius: 6px; padding: 5px 10px; flex: 1; text-align: center; }
     .slip-next-term strong { display: block; color: var(--primary); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
     .slip-sigs { display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid #ddd; font-size: 10.5px; }
     .slip-sig { text-align: center; }
     .slip-sig .sig-line { width: 120px; border-top: 1.5px solid #333; margin: 18px auto 3px; }
 
-    /* ══ FOOTER: Only school name. Contact Us removed. ══ */
-    .slip-footer { text-align: center; font-size: 10px; color: #555; padding: 8px; border-top: 1px solid #eee; background: #fafafa; letter-spacing: 0.5px; font-weight: 600; }
-    .slip-footer span { color: var(--gold); font-weight: 700; }
+    .slip-footer { text-align: center; font-size: 10px; color: #555; padding: 8px; border-top: 3px solid var(--primary); background: #edf0f8; letter-spacing: 0.5px; font-weight: 600; }
+    .slip-footer span { color: var(--primary); font-weight: 700; }
 
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
     .stat-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border-left: 4px solid var(--primary); text-align: center; }
@@ -149,8 +148,8 @@
     .top-student { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
     .top-student:last-child { border-bottom: none; }
     .rank-badge { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; }
-    .rank-1 { background: #ffd700; color: #1a1a2e; }
-    .rank-2 { background: #c0c0c0; color: #1a1a2e; }
+    .rank-1 { background: #ffd700; color: #0a1f44; }
+    .rank-2 { background: #c0c0c0; color: #0a1f44; }
     .rank-3 { background: #cd7f32; color: white; }
     .at-risk-list { list-style: none; }
     .at-risk-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
@@ -175,25 +174,25 @@
     .students-table td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
     .students-table tr:hover td { background: #f9fafb; }
 
-    .annual-hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); padding: 70px 20px 60px; text-align: center; color: white; }
+    .annual-hero { background: linear-gradient(135deg, #0a1f44 0%, #1a3a6b 60%, #2952a3 100%); padding: 70px 20px 60px; text-align: center; color: white; }
     .annual-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 5vw, 40px); margin-bottom: 10px; }
     .annual-hero p { font-size: 15px; opacity: 0.82; margin-bottom: 36px; }
-    .annual-badge { display: inline-block; background: var(--gold); color: #1a1a2e; font-size: 11px; font-weight: 700; padding: 3px 12px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+    .annual-badge { display: inline-block; background: white; color: var(--primary); font-size: 11px; font-weight: 700; padding: 3px 12px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
     .annual-slip { background: white; border-radius: 4px; box-shadow: 0 8px 40px rgba(0,0,0,0.15); overflow: hidden; }
-    .annual-slip-header { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); color: white; padding: 20px 32px; display: flex; align-items: center; gap: 18px; }
-    .annual-slip-title { background: var(--gold); color: #1a1a2e; text-align: center; padding: 10px; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+    .annual-slip-header { background: linear-gradient(135deg, #0a1f44 0%, #2952a3 100%); color: white; padding: 20px 32px; display: flex; align-items: center; gap: 18px; }
+    .annual-slip-title { background: white; color: var(--primary); text-align: center; padding: 10px; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; border-bottom: 3px solid var(--primary); }
     .annual-term-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; }
-    .annual-term-box { background: #f0f7f4; border: 1.5px solid #c3e0d0; border-radius: 10px; padding: 14px; text-align: center; }
+    .annual-term-box { background: #edf0f8; border: 1.5px solid #c5cde0; border-radius: 10px; padding: 14px; text-align: center; }
     .annual-term-box .term-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .annual-term-box .term-val { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--primary); font-weight: 700; }
-    .annual-final-box { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); color: white; border-radius: 10px; padding: 20px; text-align: center; margin: 16px 0; }
+    .annual-final-box { background: linear-gradient(135deg, #0a1f44 0%, #2952a3 100%); color: white; border-radius: 10px; padding: 20px; text-align: center; margin: 16px 0; }
     .annual-final-box .fa-label { font-size: 12px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .annual-final-box .fa-val { font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700; color: var(--gold); }
+    .annual-final-box .fa-val { font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 700; color: #c8d8f0; }
     .annual-final-box .fa-grade { font-size: 18px; font-weight: 700; margin-top: 4px; }
     .annual-status-badge { display: inline-block; padding: 6px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-top: 10px; }
     .annual-status-pass { background: #dcfce7; color: var(--success); }
     .annual-status-fail { background: #fee2e2; color: var(--danger); }
-    .deploy-btn { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); color: white; border: none; }
+    .deploy-btn { background: linear-gradient(135deg, #0a1f44 0%, #2952a3 100%); color: white; border: none; }
     .deploy-btn:hover { opacity: 0.9; transform: translateY(-1px); }
     .progress-bar-wrap { background: #e5e7eb; border-radius: 20px; height: 8px; overflow: hidden; margin: 8px 0; }
     .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--gold)); border-radius: 20px; transition: width 0.4s ease; }
@@ -273,7 +272,7 @@
 <body>
 
 <nav class="topbar">
-  <div class="topbar-brand">🎓 <span>Christ The King Academy</span>&nbsp;Ugbokpo — Result Management System</div>
+  <div class="topbar-brand">🎓 <span>Christ The King Academy Ugbokpo </span>&nbsp; Result Management System</div>
   <div class="topbar-right">
     <button class="nav-btn" onclick="showPage('student-page')">Check Result</button>
     <button class="nav-btn" onclick="showPage('annual-student-page')" style="border-color:var(--gold);color:var(--gold);">🏆 Annual Result</button>
@@ -285,20 +284,20 @@
 </nav>
 <div class="mobile-menu" id="mobile-menu">
   <button class="nav-btn" onclick="showPage('student-page');closeMobileMenu()">Check Result</button>
-  <button class="nav-btn" onclick="showPage('annual-student-page');closeMobileMenu()" style="border-color:var(--gold);color:var(--gold);">🏆 Annual Result</button>
+  <button class="nav-btn" onclick="showPage('annual-student-page');closeMobileMenu()" style="border-color:white;color:white;">🏆 Annual Result</button>
   <button class="nav-btn gold" onclick="openAdminModal();closeMobileMenu()">Teacher Login</button>
 </div>
 
 <!-- SCROLLING ADVERT BANNER -->
 <style>
   .advert-ticker {
-    background: linear-gradient(90deg, #1b4332 0%, #c9a84c 50%, #1b4332 100%);
+    background: linear-gradient(90deg, #0a1f44 0%, #2952a3 50%, #0a1f44 100%);
     color: white;
     padding: 0;
     overflow: hidden;
     white-space: nowrap;
     position: relative;
-    border-bottom: 2px solid #c9a84c;
+    border-bottom: 2px solid rgba(255,255,255,0.3);
   }
   .advert-ticker-inner {
     display: inline-block;
@@ -308,7 +307,7 @@
     font-weight: 600;
     letter-spacing: 0.4px;
   }
-  .advert-ticker-inner span.sep { color: #c9a84c; margin: 0 18px; font-size: 18px; }
+  .advert-ticker-inner span.sep { color: #c8d8f0; margin: 0 18px; font-size: 18px; }
   @keyframes tickerScroll {
     0%   { transform: translateX(100vw); }
     100% { transform: translateX(-100%); }
@@ -577,11 +576,11 @@
     <h1>Annual Academic Result</h1>
     <p>Enter your details below to view your full-year cumulative result</p>
     <div class="search-card">
-      <h3 style="color:#0f3460;">Check Annual Result</h3>
+      <h3 style="color:#2952a3;">Check Annual Result</h3>
       <div class="alert alert-info" style="font-size:12px;margin-bottom:16px;">This portal shows annual results only. For term results, use the <a href="#" onclick="showPage('student-page')" style="color:#1d4ed8;font-weight:600;">Term Result Portal</a>.</div>
       <div class="field"><label>Student ID / Admission Number</label><input type="text" id="as-id" placeholder="e.g. STD/2024/001"/></div>
       <div class="field"><label>Session</label><input type="text" id="as-session" placeholder="e.g. 2024/2025"/></div>
-      <button class="btn btn-full" style="background:linear-gradient(135deg,#1a1a2e,#0f3460);color:white;padding:12px;" onclick="fetchAnnualResult()">🔍 View Annual Result</button>
+      <button class="btn btn-full" style="background:linear-gradient(135deg,#0a1f44,#2952a3);color:white;padding:12px;" onclick="fetchAnnualResult()">🔍 View Annual Result</button>
       <div id="as-status"></div>
     </div>
   </div>
@@ -592,7 +591,7 @@
   <div class="slip-outer">
     <div class="slip-actions flex-between mb-16">
       <button class="btn btn-outline" onclick="showPage('annual-student-page')">← Back to Annual Portal</button>
-      <button class="btn" style="background:linear-gradient(135deg,#1a1a2e,#0f3460);color:white;" onclick="downloadAnnualPDF()">⬇ Download PDF</button>
+      <button class="btn" style="background:linear-gradient(135deg,#0a1f44,#2952a3);color:white;" onclick="downloadAnnualPDF()">⬇ Download PDF</button>
     </div>
     <div class="annual-slip" id="the-annual-slip">
       <div class="annual-slip-header">
@@ -905,7 +904,7 @@ function addSubjectRow(){
     <div class="field"><input class="subj-ca2" type="number" min="0" max="100" placeholder="0" oninput="calcTotal(this)"/></div>
     <div class="field"><input class="subj-ca3" type="number" min="0" max="100" placeholder="0" oninput="calcTotal(this)"/></div>
     <div class="field"><input class="subj-exam" type="number" min="0" max="100" placeholder="0" oninput="calcTotal(this)"/></div>
-    <div class="field"><input class="subj-total" readonly style="background:#f0f7f4;font-weight:700;color:var(--primary);" placeholder="0"/></div>
+    <div class="field"><input class="subj-total" readonly style="background:#edf0f8;font-weight:700;color:var(--primary);" placeholder="0"/></div>
     <button class="remove-btn" onclick="this.parentElement.remove();updateRemark()">✕</button>`;
   c.appendChild(d);
 }
@@ -1310,25 +1309,25 @@ async function sendResultsToParents(){
 
 function buildEmailHTML(s,avg){
   return`<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #ddd;border-radius:10px;overflow:hidden;">
-    <div style="background:#1b4332;color:white;padding:24px;text-align:center;">
+    <div style="background:#0a1f44;color:white;padding:24px;text-align:center;">
       <h2 style="margin:0;font-size:20px;">${(s.school_name||'CHRIST THE KING ACADEMY UGBOKPO').toUpperCase()}</h2>
       <p style="margin:6px 0 0;opacity:0.8;font-size:13px;">${s.term} Academic Result — ${s.session}</p>
     </div>
     <div style="padding:24px;">
       <p style="font-size:15px;">Dear Parent/Guardian of <strong>${s.name}</strong>,</p>
       <p style="color:#555;font-size:14px;margin-top:8px;">Please find below a summary of your child's academic performance for <strong>${s.term}</strong>, <strong>${s.session}</strong>.</p>
-      <div style="background:#f0f7f4;border-radius:8px;padding:16px;margin:16px 0;font-size:13px;">
+      <div style="background:#edf0f8;border-radius:8px;padding:16px;margin:16px 0;font-size:13px;">
         <table style="width:100%;border-collapse:collapse;">
-          <tr style="border-bottom:1px solid #c3e0d0;"><td style="padding:6px 0;"><strong>Class:</strong></td><td>${s.class_name}</td><td><strong>Grand Total:</strong></td><td><strong>${s.grand_total}</strong></td></tr>
-          <tr style="border-bottom:1px solid #c3e0d0;"><td style="padding:6px 0;"><strong>Average:</strong></td><td>${avg}%</td><td><strong>Subjects:</strong></td><td>${(s.subjects||[]).length}</td></tr>
+          <tr style="border-bottom:1px solid #c5cde0;"><td style="padding:6px 0;"><strong>Class:</strong></td><td>${s.class_name}</td><td><strong>Grand Total:</strong></td><td><strong>${s.grand_total}</strong></td></tr>
+          <tr style="border-bottom:1px solid #c5cde0;"><td style="padding:6px 0;"><strong>Average:</strong></td><td>${avg}%</td><td><strong>Subjects:</strong></td><td>${(s.subjects||[]).length}</td></tr>
           <tr><td style="padding:6px 0;" colspan="4"><strong>Remark:</strong> ${s.teacher_remark||''}</td></tr>
         </table>
       </div>
       ${s.next_term_begins?`<div style="background:#fffbeb;padding:12px;border-radius:8px;font-size:13px;margin-bottom:16px;">📅 <strong>Next Term Begins:</strong> ${fmt(s.next_term_begins)} &nbsp;&nbsp; <strong>Ends:</strong> ${fmt(s.next_term_ends)}</div>`:''}
-      <div style="background:#1b4332;color:white;border-radius:10px;padding:20px;text-align:center;margin-top:20px;">
+      <div style="background:#0a1f44;color:white;border-radius:10px;padding:20px;text-align:center;margin-top:20px;">
         <strong>Christ The King Academy Ugbokpo</strong>
       </div>
-      <p style="font-size:10px;color:#aaa;text-align:center;margin-top:16px;">Christ The King Academy Ugbokpo — <strong style="color:#c9a84c;">Excellence in Education</strong></p>
+      <p style="font-size:10px;color:#aaa;text-align:center;margin-top:16px;">Christ The King Academy Ugbokpo — <strong style="color:#ffffff;">Excellence in Education</strong></p>
     </div>
   </div>`;
 }
@@ -1374,7 +1373,7 @@ async function loadAnalytics(){
     if(gc[g]!==undefined)gc[g]++;
   }));
   destroyChart('chart-grades');
-  chartInstances['chart-grades']=new Chart(document.getElementById('chart-grades'),{type:'doughnut',data:{labels:['A — Distinction','B — Very Good','C — Good','D — Fair','E — Poor'],datasets:[{data:Object.values(gc),backgroundColor:['#1b4332','#2d6a4f','#c9a84c','#e9c46a','#dc2626']}]},options:{plugins:{legend:{position:'right'}}}});
+  chartInstances['chart-grades']=new Chart(document.getElementById('chart-grades'),{type:'doughnut',data:{labels:['A — Distinction','B — Very Good','C — Good','D — Fair','E — Poor'],datasets:[{data:Object.values(gc),backgroundColor:['#0a1f44','#1a3a6b','#2952a3','#c8d8f0','#dc2626']}]},options:{plugins:{legend:{position:'right'}}}});
   const subMap={};
   students.forEach(s=>(s.subjects||[]).forEach(sub=>{if(!subMap[sub.subject])subMap[sub.subject]=[];subMap[sub.subject].push(sub.total);}));
   const subNames=Object.keys(subMap);
@@ -1610,7 +1609,7 @@ function addEditSubjectRow(data){
     <div class="field"><input class="subj-ca2" type="number" min="0" max="100" placeholder="0" value="${data&&data.ca2!=null?data.ca2:''}" oninput="calcEditTotal(this)"/></div>
     <div class="field"><input class="subj-ca3" type="number" min="0" max="100" placeholder="0" value="${data&&data.ca3!=null?data.ca3:''}" oninput="calcEditTotal(this)"/></div>
     <div class="field"><input class="subj-exam" type="number" min="0" max="100" placeholder="0" value="${data&&data.exam!=null?data.exam:''}" oninput="calcEditTotal(this)"/></div>
-    <div class="field"><input class="subj-total" readonly style="background:#f0f7f4;font-weight:700;color:var(--primary);" value="${data&&data.total!=null?data.total:'0'}"/></div>
+    <div class="field"><input class="subj-total" readonly style="background:#edf0f8;font-weight:700;color:var(--primary);" value="${data&&data.total!=null?data.total:'0'}"/></div>
     <button class="remove-btn" onclick="this.closest('.subject-row').remove()">✕</button>`;
   c.appendChild(d);
 }
